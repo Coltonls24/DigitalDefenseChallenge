@@ -84,3 +84,6 @@ class TestPortExclusion(unittest.TestCase):
         exclude_ports = []
         output = [[22, 23], [80, 80], [8000, 9000]]
         self.assertEqual(output, self.apply_port_exclusions(include_ports, exclude_ports))
+
+if __name__ == '__main__':
+    unittest.main()
