@@ -1,0 +1,11 @@
+select @websiteID := WEBSITE_ID from websites where URL = 'http://foo.com';
+select @pageID := PAGE_ID from pages where path = '/login.html' and WEBSITE_ID = @websiteID;
+
+select * from vulnerabilities
+inner join pages on vulnerabilities.PAGE_ID = pages.PAGE_ID
+where pages.WEBSITE_ID = @websiteID and pages.PAGE_ID = @pageID; 
+
+I was using SQLFiddle to test the scripts for the data set you sent me. To make sure that the script was performant
+I used a single inner join using two variaibles from seperate queries as subqueries would bog down the script 
+with large data sets. If we wanted to further increas the performace of tables a solution would be to add clustered indexes
+as each one could be unique. This however would require you to add a WEBSITE_ID column to the vulnerabilities table.
