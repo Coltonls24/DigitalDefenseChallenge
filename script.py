@@ -5,13 +5,13 @@ class TestPortExclusion(unittest.TestCase):
         ports = []
 
         # if include_ports is empty we just return an empty list 
-        if include_ports is []:
+        if len(include_ports) == 0:
             return ports
     
         minified_ports = self.minify_array(include_ports)
 
         # if exclude_ports is empty then we can just return the minified array
-        if exclude_ports is []:
+        if len(exclude_ports) == 0:
             return minified_ports
         
         return self.remove_excluded_ports(minified_ports, exclude_ports)
@@ -21,10 +21,12 @@ class TestPortExclusion(unittest.TestCase):
 
         # We sort ports here in place to make sure the list is now ordered
         ports.sort()
-        minified_array[0] = ports.sort().pop(0)
+        minified_array.append(ports.pop(0))
 
         for pair in ports:
-            if minified_array[-1][-1] >= pair[0] or minified_array[-1][-1] >= pair[0]-1:
+            if minified_array[-1][0] <= pair[0] and minified_array[-1][-1] >= pair[-1]:
+                continue
+            elif minified_array[-1][-1] >= pair[0] or minified_array[-1][-1] >= pair[0]-1:
                 minified_array[-1][-1] = pair[-1]
             else:
                 minified_array.append(pair)
@@ -35,8 +37,10 @@ class TestPortExclusion(unittest.TestCase):
     def remove_excluded_ports(self, minified_array, excluded_ports):
         ports = []
 
-        for exclude_pair in excluded_ports:
-            for include_pair in minified_array:
+        excluded_ports = (self.minify_array(excluded_ports))
+
+        for include_pair in minified_array:
+            for exclude_pair in excluded_ports:
                 if exclude_pair[1] >= include_pair[0] and exclude_pair[0] <= include_pair[0]:
                     add = 1 if exclude_pair[1] - exclude_pair[0] == 0 else exclude_pair[1] - exclude_pair[0]
                     ports.append([include_pair[0]+add, include_pair[1]])
@@ -45,6 +49,8 @@ class TestPortExclusion(unittest.TestCase):
                     ports.append([exclude_pair[1]+1, include_pair[1]])
                 elif exclude_pair[0] > include_pair[0] and exclude_pair[1] <= include_pair[1]:
                     ports.append([include_pair[0],exclude_pair[0]-1])
+                elif exclude_pair == excluded_ports[-1] and include_pair not in ports:
+                    ports.append(include_pair)
     
 
         return ports
